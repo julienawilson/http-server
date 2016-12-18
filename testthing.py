@@ -24,7 +24,7 @@ def resolve_uri(uri_or_error):
         content_type = 'directory'
         print(body_content, content_type)
     elif os.path.isfile(file_path):
-        #check the filetype
+        # check the filetype
         file_extension = file_path.split('.')[-1]
         print('File Type:', file_extension)
         if FILETYPE[file_extension] == 'text/plain':
@@ -32,6 +32,7 @@ def resolve_uri(uri_or_error):
                 body_content = myfile.read()
             content_type = FILETYPE[file_extension]
             print('Content Type:', content_type)
+            print(file_path)
         elif FILETYPE[file_extension].split('/')[0] == 'image':
             with open(file_path, 'rb') as imageFile:
                 body_content = base64.b64encode(imageFile.read())
@@ -44,4 +45,8 @@ def resolve_uri(uri_or_error):
             response += '\r\n\r\n'
             print(response)
 
-resolve_uri('src/transferfiles/testdir/../testme.txt')
+print('res_uri out', resolve_uri('src/transferfiles/testme.txt'))
+
+
+file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "transferfiles")
+print(file_path)

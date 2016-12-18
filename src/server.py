@@ -53,13 +53,15 @@ def build_server():
                 conn.close()
             else:
                 try:
-                    print("uri_or_error", uri_or_error)
+                    # print("uri_or_error", uri_or_error)
                     body_content, content_type = resolve_uri(uri_or_error)
-                    print("body_content:", body_content)
+                    # print("body_content:", body_content)
                     full_message = response_ok(body_content, content_type)
+                    print('full message: ', full_message)
                 except Exception:
                     print("errors that we havent built in yet")
                     full_message = "nothing here"
+                print('try to send that message back now')
                 conn.sendall(full_message.encode('utf8'))
                 conn.close()
         except KeyboardInterrupt:
@@ -69,10 +71,15 @@ def build_server():
 
 def resolve_uri(uri_or_error):
     """Resolve the URI and return the appropriate message."""
+    # print("1111")
     if '..' in uri_or_error:
         raise Exception('Unauthorized.')
+        # print("2222")
     file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), uri_or_error)
+    # print(os.path.dirname(os.path.realpath(__file__)))
+    # print("res_uri filepath", file_path)
     if os.path.isdir(file_path):
+        print("is dir...")
         file_list = os.listdir(file_path)
         files = ''
         for file in file_list:
@@ -81,12 +88,13 @@ def resolve_uri(uri_or_error):
         content_type = 'text/html'
 
     elif os.path.isfile(file_path):
+        print("is file...")
         file_extension = file_path.split('.')[-1]
-        print('File Type:', file_extension)
         if FILETYPE[file_extension].split('/')[0] == 'text':
             with open(file_path, 'r') as myfile:
                 body_content = myfile.read()
             content_type = FILETYPE[file_extension]
+            # print('text file content:', body_content)
         elif FILETYPE[file_extension].split('/')[0] == 'image':
             with open(file_path, 'rb') as imageFile:
                 body_content = base64.b64encode(imageFile.read())
@@ -105,6 +113,7 @@ def response_ok(body_content, content_type):
     response += 'Content-Length: ' + str(len(body_content)) + '\r\n'
     response += '\r\n\r\n'
     response += body_content
+    # print(response)
     return response
 
 
@@ -128,6 +137,7 @@ def parse_request(request):
     if request[3] != 'Host:':
         return '400'
     return request[1]
+
 
 if __name__ == "__main__":
     """"The script excutes from command line."""
