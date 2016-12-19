@@ -24,6 +24,13 @@ def create_client_socket(message):
         if len(part) < buffer_length or not part:
             break
     msg = msg.decode('utf8')
+    # msg_split = msg.split('\r\n')
+    # msg_response = msg.split('\r\n\r\n')[0]
+    # msg_body = msg.split('\r\n\r\n')[1]
+    # file_type = msg_split[1].split()[1].split('/')[0]
+    # if file_type = 'image':
+
+    # print(file_type)
     print(msg)
     client.close()
     return msg

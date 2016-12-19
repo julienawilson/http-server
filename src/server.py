@@ -37,14 +37,15 @@ def build_server():
         print("Server listening on port", address[1], "...")
         try:
             conn, addr = server.accept()
-            buffer_length = 8
+            buffer_length = 16
             msg = b''
             msg_complete = False
-            while not msg_complete:
+            while msg[-8:] != b'\\r\\n\\r\\n':
                 part = conn.recv(buffer_length)
                 msg += part
-                if len(part) < buffer_length or not part:
-                    break
+                print(msg[-4:])
+                # if len(part) < buffer_length or not part:
+                #     break
             msg = msg.decode('utf8')
             uri_or_error = parse_request(msg)
             if uri_or_error in ERRORS:
@@ -56,6 +57,7 @@ def build_server():
                     # print("uri_or_error", uri_or_error)
                     body_content, content_type = resolve_uri(uri_or_error)
                     # print("body_content:", body_content)
+                    # print('content_type:', content_type)
                     full_message = response_ok(body_content, content_type)
                     print('full message: ', full_message)
                 except Exception:
@@ -96,24 +98,33 @@ def resolve_uri(uri_or_error):
             content_type = FILETYPE[file_extension]
             # print('text file content:', body_content)
         elif FILETYPE[file_extension].split('/')[0] == 'image':
+            print('its an image')
             with open(file_path, 'rb') as imageFile:
-                body_content = base64.b64encode(imageFile.read())
+                body_content = base64.b64encode(imageFile.read()).decode('utf8')
             content_type = FILETYPE[file_extension]
+            print(content_type)
         else:
+            print('filetype not supported')
             raise Exception('Filetype not supported.')
     else:
         raise Exception('File not found.')
+    # print(body_content, content_type)
     return (body_content, content_type)
 
 
 def response_ok(body_content, content_type):
     """Return 200 OK Response."""
+    print('RES OK body:', body_content[:20])
+    print('RES OK cont type:', content_type)
     response = u'HTTP/1.1 200 OK\r\n'
     response += 'Content-Type: ' + content_type + '; charset=utf-8\r\n'
+    print('23232')
     response += 'Content-Length: ' + str(len(body_content)) + '\r\n'
-    response += '\r\n\r\n'
+    response += '\r\n'
+    print('56565')
     response += body_content
-    # print(response)
+
+    print(response)
     return response
 
 
